@@ -1,14 +1,165 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang=en>
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset=utf-8>
+    <meta http-equiv=X-UA-Compatible content="IE=edge">
+    <meta name=viewport content="width=device-width,initial-scale=1">
+    <link rel=icon href=./favicon.ico>
     <title>fknzy</title>
+    <style>
+        * {
+            margin: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            overflow: hidden;
+            height: 100vh;
+        }
+        
+        body::-webkit-scrollbar {
+            /*隐藏滚轮*/
+            display: none;
+        }
+        
+        .wrap {
+            position: relative;
+            touch-action: none;
+            transition: all .7s ease 0s;
+            /* height: 100vh; */
+        }
+        
+        .bg {
+            height: 100vh;
+            width: 100vw;
+            position: relative;
+            background-size: cover;
+        }
+        
+        .bg1 {
+            background-image: url(./ss/bg.jpg);
+        }
+        
+        .bg2 {
+            background-image: url(./ss/bg2.jpg);
+        }
+        
+        .bg3 {
+            background-image: url(./ss/bg3.jpg);
+        }
+        
+        .bg4 {
+            background-image: url(./ss/bg4.jpg);
+        }
+        
+        .linear {
+            pointer-events: none;
+            position: sticky;
+            top: 0;
+            left: 0;
+            z-index: 0;
+            width: 100%;
+            height: 50%;
+            background: linear-gradient(rgba(0, 0, 0, .4), transparent);
+            clear: both;
+        }
+        
+        .av {
+            width: 100vw;
+            height: 100vh;
+            position: absolute;
+            object-fit: cover;
+            left: 50%;
+            top: 50%;
+            transform: translate3d(-50%, -50%, 0)
+        }
+    </style>
 </head>
 
 <body>
-    <h1>fknzy</h1>
+    <div class="wrap" style="transform: matrix3d( 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);">
+        <div class="bg bg1">
+            <div class="linear"></div>
+        </div>
+        <div class="bg bg2"></div>
+        <div class="bg bg3"></div>
+        <div class="bg">
+            <video class="av" loop="loop" autoplay="autoplay" muted="muted" style=" height: 100%;" src="./ss/vbg.mp4"></video>
+
+        </div>
+        <div class="bg bg4"></div>
+        <div class="bg bg4"></div>
+        <div class="bg ">
+            <video class="av" loop="loop" autoplay="autoplay" muted="muted" style=" height: 100%;" src="./ss/vStoryBG.mp4"></video>
+        </div>
+    </div>
+    <script>
+        const wrap = document.querySelector(".wrap")
+        let index = 0,
+            len = wrap.children.length
+        const wh = {
+            w: window.innerWidth,
+            h: window.innerHeight
+        }
+        const matrix3 = (dy) => `matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, ${-dy * wh.h}, 0, 1)`
+        window.onresize = () => {
+            wh.w = window.innerWidth
+            wh.h = window.innerHeight
+        }
+        const throttle = (fn, wait = 700, isImmediate = true) => {
+            var flag = true;
+            var timer = null;
+            if (isImmediate) {
+                return (...args) => {
+                    if (flag) {
+                        fn.apply(null, args);
+                        flag = false;
+                        timer = setTimeout(() => {
+                            flag = true
+                        }, wait)
+                    }
+                }
+            }
+            return (...args) => {
+                if (flag == true) {
+                    flag = false
+                    var timer = setTimeout(() => {
+                        fn.apply(null, args)
+                        flag = true
+                    }, wait)
+                }
+            }
+        }
+        const handle = (delta) => {
+            if (delta < 0) { //向下滚动
+                index++
+                if (index > len - 1) {
+                    index = len - 1
+                }
+            } else { //向上滚动
+                index--
+                if (index < 0) {
+                    index = 0
+                }
+            }
+            wrap.style.transform = matrix3(index)
+        }
+        const evz = throttle((event) => {
+            let delta = 0;
+            event = event || window.event;
+            if (event.wheelDelta) { //IE、chrome浏览器使用的是wheelDelta，并且值为“正负120”
+                delta = event.wheelDelta / 120;
+                if (window.opera) delta = -delta; //因为IE、chrome等向下滚动是负值，FF是正值，为了处理一致性，在此取反处理
+            } else if (event.detail) { //FF浏览器使用的是detail,其值为“正负3”
+                delta = -event.detail / 3;
+            }
+            if (delta) {
+                handle(delta)
+            }
+        }, 800)
+        document.onmousewheel = evz
+    </script>
 </body>
 
 </html>
